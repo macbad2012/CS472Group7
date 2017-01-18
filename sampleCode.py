@@ -18,4 +18,9 @@ def keywords(link):
     info = json.loads(response)
     return info
 
-print(keywords(link))
+"""print(keywords(link)["keywords"])"""
+
+for i in keywords(link)["keywords"]:
+    if (float(i['relevance']) > 0.75) :
+        print i    
+        
