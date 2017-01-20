@@ -29,7 +29,7 @@ def concepts(link):
     return info
 
 def date(link):
-    response = json.dumps(alchemy_language.date(url=link),indent=2)
+    response = json.dumps(alchemy_language.publication_date(url=link),indent=2)
     info = json.loads(response)
     return info
 
@@ -39,26 +39,26 @@ def emotion(link):
     return info
 
 def relations(link):
-    response = json.dumps(alchemy_language.relations(url=link, max_items=2), indent=2)
+    response = json.dumps(alchemy_language.relations(url=link, max_items=1), indent=2)
     info = json.loads(response)
     return info
 
-"""
+
 for i in keywords(link)["keywords"]:
     if (float(i['relevance']) > 0.5) :
         print i    
-"""
 
-"""printing concepts
+print ' '
 for i in concepts(link)["concepts"]:
     if (float(i['relevance']) > 0.75) :
         print i        
+
+for i in date(link)["publicationDate"]:
+    print i    
+
 """
-
-"""print date(link)"""
-
 info = relations(link)
-for i in info["relations"]:
-    print 'sentence:  ' + i['sentence']
-    for j in i['object'] :
-        print j
+rel = info["relations"]
+print rel['action']
+"""
+"""print relations(link)"""
