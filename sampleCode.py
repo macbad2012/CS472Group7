@@ -46,16 +46,17 @@ def relations(link):
 
 for i in keywords(link)["keywords"]:
     if (float(i['relevance']) > 0.5) :
-        print i    
-
-print ' '
+        print (i)    
+"""
+print (' ')
 for i in concepts(link)["concepts"]:
     if (float(i['relevance']) > 0.75) :
-        print i        
-
+        print (i)        
+"""
+"""
 for i in date(link)["publicationDate"]:
-    print i    
-
+    print (i)    
+"""
 """
 info = relations(link)
 rel = info["relations"]
