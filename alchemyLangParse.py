@@ -9,27 +9,33 @@ script, link = argv
 ALCHEMY_LANGUAGE_KEY = "c251be18000cca3f91ffcdf95b9ae67c5b8f6ef1"
 alchemy_language = AlchemyLanguageV1(api_key=ALCHEMY_LANGUAGE_KEY)
 
-def relations(link):
-    #response is set to json.dumps (string data type) of the relation found in the article
-    response = json.dumps(alchemy_language.relations(url=link, max_items=2), indent=2)
+"""
+    watsonCall makes the call to the AlchemyLanguage API and returns the data requested.
+    It is a combined call which keeps the number of requests to Watson to a minimum.
+    The data requested resides in the 'extract' field.
+    @param link: the link to the article
     
-    #obj is set to json.loads (object format) of the string that response was set to
-    obj = json.loads(response)
+    TODO: look into allowing multiple concept and keyword calls.  I am not sure how the max_item parameter works in combined calls
+          Could also look into the effects of having it the default amount.  Refer to relation doc for issues on that
+"""
+def watsonCall(link):
+    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors', max_items=1), indent=2)
+    return json.loads(response)
 
-    return obj
-
+    
 """
     This block of code traverses the dictionary that the relations call returns from Watson.
     This will give a subject, action, and object of an individual claim as well as the claim itself.
     @param subject: the noun of the claim that is performing the action
     @param object: the noun of the claim that is being acted upon
     @param action: the verb of the claim that the subject is using on the object
+    @param sentence: the entire sentence that the claim is made within
     
     TODO: Need to find a way to get more than one claim from a single article
     TODO: Potentially less arbitrary commenting
 """
 #sets info to the relation
-info = relations(link)
+info = watsonCall(link)
 
 subject = ""
 isSubPre = 0
@@ -92,7 +98,22 @@ for i in info["relations"]:
                             isAction = 0
                         if (m == "lemmatized"):
                             isAction = 1
-print(subject)
-print(obj)
-print(action)
-print(sentence)
+
+# object, sentence, action, and subject are now all set to their respective variables
+
+"""
+    This gets the authors from the article
+    @param authors: the one or more authors of the article
+
+    TODO: test with multiple authors (should work but who knows)
+"""
+
+authors = []
+
+for i in info.items():
+    for j in i:
+        if (isinstance(j, dict)):
+            for k in j.items():
+                for l in k:
+                    if (isinstance(l, list)):
+                        authors = l[:]
