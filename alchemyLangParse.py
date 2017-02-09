@@ -17,9 +17,10 @@ alchemy_language = AlchemyLanguageV1(api_key=ALCHEMY_LANGUAGE_KEY)
     
     TODO: look into allowing multiple concept and keyword calls.  I am not sure how the max_item parameter works in combined calls
           Could also look into the effects of having it the default amount.  Refer to relation doc for issues on that
+          max_items=1 is sufficient for my testing purposes but needs to be changed for realistic usage later
 """
 def watsonCall(link):
-    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors', max_items=1), indent=2)
+    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords', max_items=3), indent=2)
     return json.loads(response)
 
     
@@ -117,3 +118,16 @@ for i in info.items():
                 for l in k:
                     if (isinstance(l, list)):
                         authors = l[:]
+
+keywords = []
+
+"""
+    Gets the keywords of the article and places them into a list in descending order of relevance
+    @param keywords: the list of keywords in descending order of relevance
+"""
+
+for i in info["keywords"]:
+    for j in i.items():
+        if(j[0] == "text"):
+            keywords.append(j[1])
+
