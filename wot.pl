@@ -1,7 +1,7 @@
 # Web of Trust script - Stephen Woerner 
 #
 # Input: address - url to be verified by WoT (or just the domain)
-# Output: prints domain, rating, and confidence values to file "wotscore.txt" 
+# Output: prints domain, rating, and confidence values to command line
 # WOT API Key 69429eaef0f3cea5e334f84c5792bb521e81de5c
 
 require LWP::UserAgent;
@@ -16,9 +16,11 @@ $ua->env_proxy;
 my $response = $ua->get($request);
 if ($response->is_success) {
     my ($rating, $confidence) = $response->decoded_content =~ /\"0\":\s+\[\s*(\d+),\s*(\d+)\s*\]/; #Parses out rating and confidence ratings
-    open(my $fh, '>', 'wotscore.txt');
-    print $fh $output;
-    print $fh "\n$rating\n$confidence";
+    #open(my $fh, '>', 'wotscore.txt');
+    #print $fh $output;
+    #print $fh "\n$rating\n$confidence";
+    print $output;
+    print "\n$rating\n$confidence";
     close $fh; 
 }
 
