@@ -1,1 +1,0 @@
-[{"action": {"text": "felt", "verb": {"text": "feel", "tense": "past"}, "lemmatized": "feel"}, "sentence": " On Election Day I felt as though I had awakened in America and gone to sleep in Ecuador, or maybe Belgium.", "object": {"text": "as though I had awakened in America and gone to sleep in Ecuador, or maybe Belgium"}, "subject": {"text": "I"}}]

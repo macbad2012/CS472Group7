@@ -3,6 +3,7 @@
 from sys import argv
 from watson_developer_cloud import AlchemyLanguageV1
 import json
+import re
 
 script, link = argv
 
@@ -20,10 +21,10 @@ alchemy_language = AlchemyLanguageV1(api_key=ALCHEMY_LANGUAGE_KEY)
           max_items=1 is sufficient for my testing purposes but needs to be changed for realistic usage later
 """
 def watsonCall(link):
-    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords', max_items=3), indent=2)
+    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords', max_items=1), indent=2)
     return json.loads(response)
 
-    
+
 """
     This block of code traverses the dictionary that the relations call returns from Watson.
     This will give a subject, action, and object of an individual claim as well as the claim itself.
@@ -33,74 +34,32 @@ def watsonCall(link):
     @param sentence: the entire sentence that the claim is made within
     
     TODO: Need to find a way to get more than one claim from a single article
+          Currently the it is setting the variables to the last claim recieved
     TODO: Potentially less arbitrary commenting
 """
 #sets info to the relation
 info = watsonCall(link)
+infoStr = str(info)
 
-subject = ""
-isSubPre = 0
-isSubject = 0
-sentence = ""
-isSentence = 0
-action = ""
-isAction = 0
-obj = ""
-isObjPre = 0
-isObj = 0
+relations = [] 
 
-for i in info["relations"]:
-    for j in i.items():
-        #j is the base list of relations (location subject sentence action object)
-        for k in j:
-            # k is each item in the relations
-            # location is a dict
-            # subject is a dict
-            # sentence is a string
-            # action is a dict
-            # object is a dict
+SENTENCE_PATTERN = "'sentence': '(.*?)'"
+SUBJECT_PATTERN = "'subject': .*?'text': '(.*?)'"
+OBJECT_PATTERN = "'object': .*?'text': '(.*?)'"
+ACTION_PATTERN = "'lemmatized': '(.*?)'"
 
-            if (isSentence == 1):
-                sentence = k
-                isSentence = 0
-            if (k == "subject"):
-                isSubPre = 1
-            elif (k == "object"):
-                isObjPre = 1
-            elif (k == "sentence"):
-                isSentence = 1
+sentenceMatch = re.search(SENTENCE_PATTERN, infoStr)
+subjectMatch = re.search(SUBJECT_PATTERN, infoStr)
+objectMatch = re.search(OBJECT_PATTERN, infoStr)
+actionMatch = re.search(ACTION_PATTERN, infoStr)
 
-            if (isinstance(k, dict)):
-                for l in k.items():
-                    # l is the contents of k (excluding the sentence itself which is present in its primitive form in k)
-                    # the first is the location or group of people
-                    # the second is the subject
-                    # the third and fourth are the lemmatized version of the verb and how its present in the article
-                    # the fifth is the object the verb acts upon
+sentence = sentenceMatch.group(1)
+subject = subjectMatch.group(1)
+obj = objectMatch.group(1)
+action = actionMatch.group(1)
 
-                    for m in l:
-                        # m is the primitive instances of each object extracted in l
-                        if (isSubject == 1):
-                            subject = m
-                            isSubject = 0
-                        elif (isObj == 1):
-                            obj = m
-                            isObj = 0
-                        
-                        if (isSubPre == 1):
-                            isSubject = 1
-                            isSubPre = 0
-                        elif (isObjPre == 1):
-                            isObj = 1
-                            isObjPre = 0
-
-                        if (isAction == 1):
-                            action = m
-                            isAction = 0
-                        if (m == "lemmatized"):
-                            isAction = 1
-
-# object, sentence, action, and subject are now all set to their respective variables
+tempDict = {'object': obj, 'sentence': sentence, 'action': action, 'subject': subject}
+relations.append(tempDict)
 
 """
     This gets the authors from the article
@@ -119,15 +78,17 @@ for i in info.items():
                     if (isinstance(l, list)):
                         authors = l[:]
 
-keywords = []
 
 """
     Gets the keywords of the article and places them into a list in descending order of relevance
     @param keywords: the list of keywords in descending order of relevance
 """
 
+keywords = []
+
 for i in info["keywords"]:
     for j in i.items():
         if(j[0] == "text"):
             keywords.append(j[1])
 
+print(relations)
