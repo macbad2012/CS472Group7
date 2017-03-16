@@ -1,12 +1,22 @@
 #!/usr/bin/python3.5
 
+"""
+    argv pulls the command line arguments
+    AlchemyLanguageV1 is the reference to Watson's API
+    json allows for easy access to the returned data from Watson
+    re is regex which is used to parse the desired info from the Watson data
+    subprocess: ?
+"""
 from sys import argv
 from watson_developer_cloud import AlchemyLanguageV1
 import json
 import re
+import subprocess
 
 script, link = argv
 
+
+#These are the API key and the reference to Watson's Alchemy Language
 ALCHEMY_LANGUAGE_KEY = "c251be18000cca3f91ffcdf95b9ae67c5b8f6ef1"
 alchemy_language = AlchemyLanguageV1(api_key=ALCHEMY_LANGUAGE_KEY)
 
@@ -15,13 +25,9 @@ alchemy_language = AlchemyLanguageV1(api_key=ALCHEMY_LANGUAGE_KEY)
     It is a combined call which keeps the number of requests to Watson to a minimum.
     The data requested resides in the 'extract' field.
     @param link: the link to the article
-    
-    TODO: look into allowing multiple concept and keyword calls.  I am not sure how the max_item parameter works in combined calls
-          Could also look into the effects of having it the default amount.  Refer to relation doc for issues on that
-          max_items=1 is sufficient for my testing purposes but needs to be changed for realistic usage later
 """
 def watsonCall(link):
-    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords', max_items=1), indent=2)
+    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords, doc-emotion', max_items=3), indent=2)
     return json.loads(response)
 
 
@@ -33,8 +39,6 @@ def watsonCall(link):
     @param action: the verb of the claim that the subject is using on the object
     @param sentence: the entire sentence that the claim is made within
     
-    TODO: Need to find a way to get more than one claim from a single article
-          Currently the it is setting the variables to the last claim recieved
     TODO: Potentially less arbitrary commenting
 """
 #sets info to the relation
@@ -48,18 +52,29 @@ SUBJECT_PATTERN = "'subject': .*?'text': '(.*?)'"
 OBJECT_PATTERN = "'object': .*?'text': '(.*?)'"
 ACTION_PATTERN = "'lemmatized': '(.*?)'"
 
-sentenceMatch = re.search(SENTENCE_PATTERN, infoStr)
-subjectMatch = re.search(SUBJECT_PATTERN, infoStr)
-objectMatch = re.search(OBJECT_PATTERN, infoStr)
-actionMatch = re.search(ACTION_PATTERN, infoStr)
+sentenceMatch = re.finditer(SENTENCE_PATTERN, infoStr)
+subjectMatch = re.finditer(SUBJECT_PATTERN, infoStr)
+objectMatch = re.finditer(OBJECT_PATTERN, infoStr)
+actionMatch = re.finditer(ACTION_PATTERN, infoStr)
 
-sentence = sentenceMatch.group(1)
-subject = subjectMatch.group(1)
-obj = objectMatch.group(1)
-action = actionMatch.group(1)
+sentence = []
+subject = []
+obj = []
+action = []
 
-tempDict = {'object': obj, 'sentence': sentence, 'action': action, 'subject': subject}
-relations.append(tempDict)
+for i in sentenceMatch:
+    sentence.append(i.group(1))
+for i in subjectMatch:
+    subject.append(i.group(1))
+for i in objectMatch:
+    obj.append(i.group(1))
+for i in actionMatch:
+    action.append(i.group(1))
+
+numOfMatches = len(sentence)
+for i in range(0, numOfMatches):
+    tempDict = {'object': obj[i], 'sentence': sentence[i], 'action': action[i], 'subject': subject[i]}
+    relations.append(tempDict)
 
 """
     This gets the authors from the article
@@ -91,4 +106,20 @@ for i in info["keywords"]:
         if(j[0] == "text"):
             keywords.append(j[1])
 
-print(relations)
+watsonResp = [relations, authors, keywords]
+
+
+"""
+    Calls the Web Of Trust code and returns the response to the variable 'wot'
+    @param pathToPerlScript: the file system path to the location of the web of trust perl script
+    @param pipe: the reference to the perl script
+    @param perl_stdout: the call to the perl script that gets the coded reponse
+    @param wot: the parameter that holds the Web of Trust response
+"""
+#TODO: change the path to the perl script
+pathToPerlScript ='/PATH/TO/PERL/SCRIPT' 
+pipe = subprocess.Popen(["perl", "wot.pl", link, pathToPerlScript], stdout=subprocess.PIPE)
+perl_stdout = pipe.communicate(input=pathToPerlScript)
+wot = perl_stdout[0].decode().replace('\r','').split('\n')
+
+fullResponse = [watsonResponse, wot]
