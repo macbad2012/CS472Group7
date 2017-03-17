@@ -27,7 +27,7 @@ alchemy_language = AlchemyLanguageV1(api_key=ALCHEMY_LANGUAGE_KEY)
     @param link: the link to the article
 """
 def watsonCall(link):
-    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords, doc-emotion', max_items=3), indent=2)
+    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords, doc-emotion', max_items=1), indent=2)
     return json.loads(response)
 
 
@@ -45,37 +45,38 @@ def watsonCall(link):
 info = watsonCall(link)
 infoStr = str(info)
 
+#print(infoStr);
+
 relations = [] 
 
-SENTENCE_PATTERN = "'sentence': '(.*?)'"
+SENTENCE_PATTERN = "'sentence': \"(.*?)\""
 SUBJECT_PATTERN = "'subject': .*?'text': '(.*?)'"
 OBJECT_PATTERN = "'object': .*?'text': '(.*?)'"
 ACTION_PATTERN = "'lemmatized': '(.*?)'"
-
-sentenceMatch = re.finditer(SENTENCE_PATTERN, infoStr)
-subjectMatch = re.finditer(SUBJECT_PATTERN, infoStr)
-objectMatch = re.finditer(OBJECT_PATTERN, infoStr)
-actionMatch = re.finditer(ACTION_PATTERN, infoStr)
 
 sentence = []
 subject = []
 obj = []
 action = []
 
+sentenceMatch = re.findall(SENTENCE_PATTERN, infoStr)
+subjectMatch = re.findall(SUBJECT_PATTERN, infoStr)
+objectMatch = re.findall(OBJECT_PATTERN, infoStr)
+actionMatch = re.findall(ACTION_PATTERN, infoStr)
+
 for i in sentenceMatch:
-    sentence.append(i.group(1))
+    sentence.append(i)
 for i in subjectMatch:
-    subject.append(i.group(1))
+    subject.append(i)
 for i in objectMatch:
-    obj.append(i.group(1))
+    obj.append(i)
 for i in actionMatch:
-    action.append(i.group(1))
+    action.append(i)
 
 numOfMatches = len(sentence)
 for i in range(0, numOfMatches):
     tempDict = {'object': obj[i], 'sentence': sentence[i], 'action': action[i], 'subject': subject[i]}
     relations.append(tempDict)
-
 """
     This gets the authors from the article
     @param authors: the one or more authors of the article
@@ -122,4 +123,5 @@ pipe = subprocess.Popen(["perl", "wot.pl", link, pathToPerlScript], stdout=subpr
 perl_stdout = pipe.communicate(input=pathToPerlScript)
 wot = perl_stdout[0].decode().replace('\r','').split('\n')
 
-fullResponse = [watsonResponse, wot]
+fullResponse = [watsonResp, wot]
+print(fullResponse);
