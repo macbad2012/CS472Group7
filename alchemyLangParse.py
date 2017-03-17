@@ -1,3 +1,14 @@
+"""
+    This script calls the Watson Alchemy Language API and the Web of Trust API
+    It currently parses the data that is most valuable for identifying the context of a source and places it into
+        a list for easy access
+    This script will be called by the web server and the data will be used for comparison and evaluation of the credibility of the source
+    
+    As the current time the response is only printed
+"""
+
+
+
 #!/usr/bin/python3.5
 
 """
@@ -45,8 +56,6 @@ def watsonCall(link):
 info = watsonCall(link)
 infoStr = str(info)
 
-#print(infoStr);
-
 relations = [] 
 
 SENTENCE_PATTERN = "'sentence': \"(.*?)\""
@@ -77,13 +86,13 @@ numOfMatches = len(sentence)
 for i in range(0, numOfMatches):
     tempDict = {'object': obj[i], 'sentence': sentence[i], 'action': action[i], 'subject': subject[i]}
     relations.append(tempDict)
+
 """
     This gets the authors from the article
     @param authors: the one or more authors of the article
 
     TODO: test with multiple authors (should work but who knows)
 """
-
 authors = []
 
 for i in info.items():
@@ -99,7 +108,6 @@ for i in info.items():
     Gets the keywords of the article and places them into a list in descending order of relevance
     @param keywords: the list of keywords in descending order of relevance
 """
-
 keywords = []
 
 for i in info["keywords"]:
