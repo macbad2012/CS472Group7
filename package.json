@@ -1,0 +1,14 @@
+{
+  "name": "cs472",
+  "version": "1.0.0",
+  "description": "AI project",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tim",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.14.1"
+  }
+}
