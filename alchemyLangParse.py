@@ -1,3 +1,4 @@
+#!/usr/bin/python3.5
 """
     This script calls the Watson Alchemy Language API and the Web of Trust API
     It currently parses the data that is most valuable for identifying the context of a source and places it into
@@ -7,9 +8,6 @@
     As the current time the response is only printed
 """
 
-
-
-#!/usr/bin/python3.5
 
 """
     argv pulls the command line arguments
@@ -58,7 +56,7 @@ infoStr = str(info)
 
 relations = [] 
 
-SENTENCE_PATTERN = "'sentence': \"(.*?)\""
+SENTENCE_PATTERN = "'sentence': [\"'](.*?)[\"']"
 SUBJECT_PATTERN = "'subject': .*?'text': '(.*?)'"
 OBJECT_PATTERN = "'object': .*?'text': '(.*?)'"
 ACTION_PATTERN = "'lemmatized': '(.*?)'"
@@ -132,4 +130,4 @@ perl_stdout = pipe.communicate(input=pathToPerlScript)
 wot = perl_stdout[0].decode().replace('\r','').split('\n')
 
 fullResponse = [watsonResp, wot]
-print(fullResponse);
+print(fullResponse)
