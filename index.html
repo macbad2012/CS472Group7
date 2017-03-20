@@ -81,7 +81,7 @@
         success: function(response){
            output = response;
            alert(output);
-           document.getElementById('results').value = output;
+           document.getElementById('results').value = output.value;
         }
 	}).done(function(data){
 		console.log(data);

@@ -62,7 +62,7 @@ infoStr = str(info)
 
 relations = [] 
 
-SENTENCE_PATTERN = "'sentence': \"(.*?)\""
+SENTENCE_PATTERN = "'sentence': [\"'](.*?)[\"']"
 SUBJECT_PATTERN = "'subject': .*?'text': '(.*?)'"
 OBJECT_PATTERN = "'object': .*?'text': '(.*?)'"
 ACTION_PATTERN = "'lemmatized': '(.*?)'"
