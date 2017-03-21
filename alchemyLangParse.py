@@ -24,7 +24,6 @@ import subprocess
 
 script, link = argv
 
-
 #These are the API key and the reference to Watson's Alchemy Language
 ALCHEMY_LANGUAGE_KEY = "c251be18000cca3f91ffcdf95b9ae67c5b8f6ef1"
 alchemy_language = AlchemyLanguageV1(api_key=ALCHEMY_LANGUAGE_KEY)
@@ -36,7 +35,7 @@ alchemy_language = AlchemyLanguageV1(api_key=ALCHEMY_LANGUAGE_KEY)
     @param link: the link to the article
 """
 def watsonCall(link):
-    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords, doc-emotion', max_items=1), indent=2)
+    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords, doc-emotion', max_items=3), indent=2)
     return json.loads(response)
 
 
