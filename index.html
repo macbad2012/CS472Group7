@@ -80,13 +80,13 @@
         dataType: "text",
         success: function(response){
            output = response;
-           alert(output);
-           document.getElementById('results').value = output.value;
+           //alert(output);
+           
         }
 	}).done(function(data){
 		console.log(data);
-		alert(data);
-		$('#results').text(data);
+		//alert(data);
+		$('#results').html(data);
 		});
   };
 </script>
