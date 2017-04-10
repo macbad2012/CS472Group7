@@ -9,9 +9,6 @@
 """
 
 
-
-
-
 """
     argv pulls the command line arguments
     AlchemyLanguageV1 is the reference to Watson's API
@@ -28,7 +25,7 @@ import cgi
 
 input_data  = cgi.FieldStorage()
 
-link = input_data
+link = json.loads(input_data)
 
 
 #These are the API key and the reference to Watson's Alchemy Language
@@ -42,7 +39,11 @@ alchemy_language = AlchemyLanguageV1(api_key=ALCHEMY_LANGUAGE_KEY)
     @param link: the link to the article
 """
 def watsonCall(link):
-    response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords, doc-emotion', max_items=1), indent=2)
+    try:
+        response = json.dumps(alchemy_language.combined(url=link, extract='relations, authors, keywords, doc-emotion', max_items=1), indent=2)
+    except:
+        response = json.dumps(alchemy_language.combines(url=link, extract='relations, keywords, doc-emotion', max_items=1, indent=2)
+
     return json.loads(response)
 
 
@@ -97,15 +98,19 @@ for i in range(0, numOfMatches):
 
     TODO: test with multiple authors (should work but who knows)
 """
+
+AUTHORS_PATTERN = re.compile(r'authors')
+
 authors = []
 
-for i in info.items():
-    for j in i:
-        if (isinstance(j, dict)):
-            for k in j.items():
-                for l in k:
-                    if (isinstance(l, list)):
-                        authors = l[:]
+if (AUTHORS_PATTERN.search(infoStr):
+    for i in info.items():
+        for j in i:
+            if (isinstance(j, dict)):
+                for k in j.items():
+                    for l in k:
+                        if (isinstance(l, list)):
+                            authors = l[:]
 
 
 """
